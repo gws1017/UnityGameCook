@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public class Player : MonoBehaviour
 {
@@ -12,9 +13,9 @@ public class Player : MonoBehaviour
     public int Exp = 0;
     [Space(10.0f)]
     public int MaxHealth = 100;
-    public int CurrentHealth;
+    public int CurHealth;
     public int Atk = 10;
-    public int AtkSpeed = 1;
+    public float AtkSpeed = 1;
     public int AtkRange = 1;
     public float Speed = 10.0f;
 
@@ -27,21 +28,24 @@ public class Player : MonoBehaviour
     //public float Atk1CoolTime = 3.0f;
 
     bool IsMove;
-    bool IsAtkReady = true;
     bool IsDead = false;
 
     float AtkDelay;
+    float Dist;
+    Vector3 TargetVec;
 
+    Rigidbody Rigid;
     Animator Anim;
 
-    float Dist;
     List<GameObject> Monsters;
-    GameObject Target;
+    public GameObject Target;
+    public BoxCollider WeaponCollision;
     // Start is called before the first frame update
     void Awake()
     {
-        CurrentHealth = MaxHealth;
+        CurHealth = MaxHealth;
         Anim = GetComponentInChildren<Animator>();
+        Rigid = GetComponent<Rigidbody>();
     }
     void Start()
     {
@@ -51,6 +55,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Rigid.velocity = Vector3.zero;
+        Rigid.angularVelocity = Vector3.zero;
         Detect();
         Die();
         Move();
@@ -77,7 +83,7 @@ public class Player : MonoBehaviour
         if (Target)
             Dist = (Target.transform.position - transform.position).sqrMagnitude;
 
-        IsDead = CurrentHealth <= 0;
+        IsDead = CurHealth <= 0;
     }
 
     void Die()
@@ -86,7 +92,15 @@ public class Player : MonoBehaviour
             Anim.speed = 1.0f;
         Anim.SetTrigger("Die");
         IsDead = true;
-        CurrentHealth = MaxHealth;
+        CurHealth = MaxHealth;
+    }
+
+    void TurnToTarget()
+    {
+        TargetVec = (Target.transform.position - transform.position);
+        TargetVec.y = 0;
+        TargetVec.Normalize();
+        transform.rotation = Quaternion.LookRotation(TargetVec);
     }
 
     bool CanMove()
@@ -108,11 +122,8 @@ public class Player : MonoBehaviour
     {
         if (!CanMove()) return;
         Anim.speed = 1.0f;
-
-        Vector3 MoveVec = (Target.transform.position - transform.position);
-        MoveVec.y = 0;
-        MoveVec.Normalize();
-        transform.position += MoveVec * Speed * Time.deltaTime;
+        TurnToTarget();
+        transform.position += TargetVec * Speed * Time.deltaTime;
     }
 
     bool CanAttack()
@@ -135,12 +146,21 @@ public class Player : MonoBehaviour
         Anim.SetBool("IsMove", false);
         Anim.speed = AtkSpeed;
 
+        TurnToTarget();
         Anim.SetTrigger("DoAttack");
-        SkillType++;
-        if (SkillType > MaxSkillType - 1)
+        AtkDelay = 0;
+    }
+
+    public void RemoveTarget()
+    {
+        Monsters.Remove(Target);
+        Target = null;
+    }
+
+    public void ChangeSkillType()
+    {
+        if (++SkillType > MaxSkillType - 1)
             SkillType = 0;
         Anim.SetInteger("SkillType", SkillType);
-        AtkDelay = 0;
-
     }
 }

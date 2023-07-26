@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Monster
+  - Weapon
   layers:
   - Default
   - TransparentFX
@@ -12,11 +13,11 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
+  - PlayerWeapon
+  - Player
+  - Monster
+  - MonsterDead
+  - Terrian
   - 
   - 
   - 
