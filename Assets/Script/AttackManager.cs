@@ -6,7 +6,13 @@ public class AttackManager : MonoBehaviour
 {
     // Start is called before the first frame update
     public BoxCollider WeaponCollision;
-    public Player Owner;
+    public Rigidbody Rigid;
+    Player Owner;
+
+    void Awake()
+    {
+        Owner = GetComponentInParent<Player>();  
+    }
     void Start()
     {
         
@@ -27,6 +33,23 @@ public class AttackManager : MonoBehaviour
     {
         WeaponCollision.enabled = false;
 
+    }
+
+    public void OnAreaAttack()
+    {
+        RaycastHit[] RayHits = Physics.SphereCastAll(Owner.Target.transform.position,
+            Owner.Skill2Area, Vector3.up, 0f, LayerMask.GetMask("Monster"));
+
+        foreach(RaycastHit hitobj in RayHits) 
+        {
+            hitobj.transform.GetComponent<Monster>().HitFromAtk2(Owner);
+        }
+    }
+
+    public void OnHealSkill()
+    {
+        Owner.CurHealth += Owner.Atk;
+        if(Owner.CurHealth >= Owner.MaxHealth) { Owner.CurHealth = Owner.MaxHealth; }
     }
 
     public void OnAttackEnd()

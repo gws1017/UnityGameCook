@@ -517,3 +517,6 @@ ProjectVersion.txt
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,unity,visualstudio
 
+Assets/TutorialInfo/Layout.wlt
+Assets/TutorialInfo/Scripts/Readme.cs
+Assets/TutorialInfo/Scripts/Editor/ReadmeEditor.cs

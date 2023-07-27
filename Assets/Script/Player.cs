@@ -9,11 +9,11 @@ public class Player : MonoBehaviour
 {
     [Header("Player Stat")]
     public int Level = 1;
-    public int MaxExp = 100;
-    public int Exp = 0;
+    public float MaxExp = 100;
+    public float Exp = 0;
     [Space(10.0f)]
-    public int MaxHealth = 100;
-    public int CurHealth;
+    public float MaxHealth = 100;
+    public float CurHealth;
     public int Atk = 10;
     public float AtkSpeed = 1;
     public int AtkRange = 1;
@@ -25,27 +25,24 @@ public class Player : MonoBehaviour
     public int Skill2Area = 2;
 
     
-    //public float Atk1CoolTime = 3.0f;
-
-    bool IsMove;
     bool IsDead = false;
-
     float AtkDelay;
     float Dist;
     Vector3 TargetVec;
 
     Rigidbody Rigid;
     Animator Anim;
+    MeshRenderer[] meshs;
 
-    List<GameObject> Monsters;
+    public List<GameObject> Monsters;
     public GameObject Target;
-    public BoxCollider WeaponCollision;
-    // Start is called before the first frame update
+
     void Awake()
     {
         CurHealth = MaxHealth;
         Anim = GetComponentInChildren<Animator>();
         Rigid = GetComponent<Rigidbody>();
+        meshs = GetComponentsInChildren<MeshRenderer>();
     }
     void Start()
     {
@@ -55,23 +52,34 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Rigid.velocity = Vector3.zero;
-        Rigid.angularVelocity = Vector3.zero;
+       
         Detect();
         Die();
         Move();
 
         Attack();
+       
+    }
+    void FixedUpdate()
+    {
+        Rigid.velocity = Vector3.zero;
+        Rigid.angularVelocity = Vector3.zero;
     }
 
     void Detect()
     {
         if (Monsters.Any() && Target == null)
         {
-            Dist = (Monsters[0].transform.position - transform.position).sqrMagnitude;
-            Target = Monsters[0];
             foreach (GameObject mon in Monsters)
             {
+                if (mon == null) continue;
+                Dist = (mon.transform.position - transform.position).sqrMagnitude;
+                Target = mon;
+                break;
+            }
+            foreach (GameObject mon in Monsters)
+            {
+                if (mon == null) continue;
                 float d = (mon.transform.position - transform.position).sqrMagnitude;
                 if (Dist > d)
                 {
@@ -85,7 +93,16 @@ public class Player : MonoBehaviour
 
         IsDead = CurHealth <= 0;
     }
-
+    public void IncreaseExp(int exp)
+    {
+        Exp += exp;
+        if(Exp>=MaxExp)
+        {
+            Exp = Exp - MaxExp;
+            Level++;
+            CurHealth = MaxHealth;
+        }
+    }
     void Die()
     {
         if (!IsDead) return;
@@ -153,8 +170,11 @@ public class Player : MonoBehaviour
 
     public void RemoveTarget()
     {
-        Monsters.Remove(Target);
-        Target = null;
+        if(Target != null)
+        {
+            Monsters.Remove(Target);
+            Target = null;
+        }
     }
 
     public void ChangeSkillType()
@@ -163,4 +183,15 @@ public class Player : MonoBehaviour
             SkillType = 0;
         Anim.SetInteger("SkillType", SkillType);
     }
+
+    public void OnTriggerEnter(Collider other)
+    {
+       if (other.tag == "MonsterBody" )
+        {
+            Monster monster = other.GetComponentInParent<Monster>();
+            CurHealth -= monster.Atk;
+            if (CurHealth < 0) CurHealth = 0;
+        }
+    }
+ 
 }
