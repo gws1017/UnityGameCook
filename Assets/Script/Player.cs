@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.UI.GridLayoutGroup;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, ICharacter
 {
     [Header("Player Stat")]
     public int Level = 1;
@@ -25,6 +25,7 @@ public class Player : MonoBehaviour
     public int Skill2Area = 2;
     
     public bool IsDead = false;
+    public bool IsAttack;
     float AtkDelay;
     float Dist;
     Vector3 TargetVec;
@@ -99,6 +100,7 @@ public class Player : MonoBehaviour
         ret &= Target;
         ret &= (AtkRange < Dist);
 
+        if (IsAttack == true) return false;
         if(ret)
             Anim.SetBool("IsMove", true);
         else
@@ -120,7 +122,7 @@ public class Player : MonoBehaviour
         bool ret = true;
 
         AtkDelay += Time.deltaTime;
-
+        if (IsAttack == true) return false;
         if (Target == null) return false;
         if (AtkRange < Dist) return false;
         if (Alive() == false) return false;
@@ -139,6 +141,7 @@ public class Player : MonoBehaviour
         TurnToTarget();
         Anim.SetTrigger("DoAttack");
         AtkDelay = 0;
+        IsAttack = true;
     }
     public void IncreaseExp(int exp)
     {
@@ -147,6 +150,7 @@ public class Player : MonoBehaviour
         {
             Exp = Exp - MaxExp;
             Level++;
+            Atk += 5;
             CurHealth = MaxHealth;
         }
     }
@@ -156,7 +160,9 @@ public class Player : MonoBehaviour
     }
     public void OnDeadEnd()
     {
+        //Player can't die
         IsDead = false;
+        IsAttack = false;
         CurHealth = MaxHealth;
     }
 
@@ -190,5 +196,47 @@ public class Player : MonoBehaviour
             }
         }
     }
- 
+
+    public void OnAttackEnd()
+    {
+        IsAttack = false;
+    }
+
+    public void OnAtkTrigger()
+    {
+        switch(SkillType)
+        {
+            case 0:
+                Monster mon = Target.GetComponent<Monster>();
+                mon.ApplyDamage(Atk, this);
+                break;
+
+            case 1:
+                RaycastHit[] RayHits = Physics.SphereCastAll(Target.transform.position,
+                    Skill2Area, Vector3.up, 0f, LayerMask.GetMask("Monster"));
+
+                foreach (RaycastHit hitobj in RayHits)
+                {
+                    hitobj.transform.GetComponent<Monster>().ApplyDamage(Atk, this);
+                }
+                break;
+
+            case 2:
+                CurHealth += Atk;
+                if (CurHealth >= MaxHealth) { CurHealth = MaxHealth; }
+                break;
+        }
+
+        ChangeSkillType();
+    }
+    public void OnAtkColliderEnable()
+    {
+        //Weapon Collision Enable
+    }
+
+    public void OnAtkColliderDisable()
+    {
+        //Weapon Collision Disable
+    }
+
 }

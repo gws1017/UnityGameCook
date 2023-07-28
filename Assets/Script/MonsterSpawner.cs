@@ -6,11 +6,11 @@ public class MonsterSpawner : MonoBehaviour
 {
 
     public float SpawnInterval = 5f;
-    public float SpawnRange = 5f;
     public int MaxMonsterCount = 5;
     int CurMonsterCount;
     public int FarDist = 5;
     public int NearDist= 3;
+    public int TerrainWidth = 40;
     public Player player;
 
     public GameObject MonsterPrefab;
@@ -30,16 +30,25 @@ public class MonsterSpawner : MonoBehaviour
 
     void CreateMonster()
     {
-        Vector3 SpawnPosition = player.transform.position + new Vector3(RandomDist(), RandomDist(), 0);
+        Vector3 SpawnPosition = GetSpawnPosition();
         GameObject InstantMonster = Instantiate(MonsterPrefab, SpawnPosition, Quaternion.identity);
         player.Monsters.Add(InstantMonster);
     }
 
-    int RandomDist()
+    Vector3 GetSpawnPosition()
     {
-        int Dist = Random.Range(-FarDist, FarDist);
-        while (Mathf.Abs(Dist) < NearDist) Dist = Random.Range(-FarDist, FarDist);
-        return Dist;
+        Vector3 Pos = player.transform.position;
+        float x = Random.Range(-FarDist, FarDist);
+        x = RandPoint(Pos.x, x);
+        float z = Random.Range(-FarDist, FarDist);
+        z = RandPoint(Pos.z, z);
+        return Pos + new Vector3(x,0,z);
+    }
+
+    float RandPoint(float origin, float x)
+    {
+        while (Mathf.Abs(origin + x) < NearDist || Mathf.Abs(origin + x) > TerrainWidth) x = Random.Range(-FarDist, FarDist);
+        return x;
     }
 
     IEnumerator SpawnMonster()

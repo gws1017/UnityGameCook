@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class AttackManager : MonoBehaviour
 {
-    public BoxCollider WeaponCollision;
-    public Rigidbody Rigid;
-    Player Owner;
+    ICharacter Owner;
 
     void Awake()
     {
-        Owner = GetComponentInParent<Player>();  
+        Owner = GetComponentInParent<ICharacter>();  
     }
 
     void Update()
@@ -20,49 +18,23 @@ public class AttackManager : MonoBehaviour
 
     public void OnAtk1TriggerEnable()
     {
-        WeaponCollision.enabled = true;
+        Owner.OnAtkColliderEnable();
     }
 
     public void OnAtk1TriggerDisable()
     {
-        WeaponCollision.enabled = false;
+        Owner.OnAtkColliderDisable();
     }
 
-    public void OnAtk1Trigger()
+    public void OnAtkTrigger()
     {
-        if (Owner.SkillType == 0)
-        {
-            Monster mon = Owner.Target.GetComponent<Monster>();
-            mon.ApplyDamage(Owner.Atk, Owner);
-        }
-        Owner.ChangeSkillType();
-
-    }
-
-    public void OnAtk2Trigger()
-    {
-        RaycastHit[] RayHits = Physics.SphereCastAll(Owner.Target.transform.position,
-            Owner.Skill2Area, Vector3.up, 0f, LayerMask.GetMask("Monster"));
-
-        foreach(RaycastHit hitobj in RayHits) 
-        {
-            hitobj.transform.GetComponent<Monster>().ApplyDamage(Owner.Atk, Owner);
-        }
-        Owner.ChangeSkillType();
-
-    }
-
-    public void OnAtk3Trigger()
-    {
-        Owner.CurHealth += Owner.Atk;
-        if(Owner.CurHealth >= Owner.MaxHealth) { Owner.CurHealth = Owner.MaxHealth; }
-        Owner.ChangeSkillType();
-
+        Owner.OnAtkTrigger();
     }
 
     public void OnAttackEnd()
     {
         //Owner.ChangeSkillType();
+        Owner.OnAttackEnd();
     }
 
     public void OnDeadEnd()

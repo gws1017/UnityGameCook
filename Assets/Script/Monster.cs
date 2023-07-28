@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using static UnityEngine.UI.GridLayoutGroup;
 
-public class Monster : MonoBehaviour
+public class Monster : MonoBehaviour, ICharacter
 {
     [Header("Monster Stat")]
     public float MaxHealth = 100;
@@ -34,7 +34,6 @@ public class Monster : MonoBehaviour
         nav = GetComponent<NavMeshAgent>();
         anim = GetComponentInChildren<Animator>();
         CurHealth = MaxHealth;
-
         Invoke("ChaseStart",1);
     }
     void Start()
@@ -47,6 +46,7 @@ public class Monster : MonoBehaviour
         IsChase = true;
         anim.SetBool("IsWalk", true);
     }
+
     void Update()
     {
         Detect();
@@ -61,11 +61,12 @@ public class Monster : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(IsChase)
+        if(Alive())
         {
+
+        }
             Rigid.velocity = Vector3.zero;
             Rigid.angularVelocity = Vector3.zero;
-        }
     }
     void TurnToTarget()
     {
@@ -74,6 +75,7 @@ public class Monster : MonoBehaviour
         TargetVec.Normalize();
         transform.rotation = Quaternion.LookRotation(TargetVec);
     }
+
     void Detect()
     {
         RaycastHit[] rayHits =
@@ -83,29 +85,29 @@ public class Monster : MonoBehaviour
 
         if (rayHits.Length > 0 && !IsAttack)
         {
-            StartCoroutine(Attack());
+            Attack();
         }
 
     }
 
-    IEnumerator Attack()
+    void Attack()
     {
         TurnToTarget();
         IsChase = false;
         IsAttack = true;
-        anim.SetBool("IsAttack", true);
         anim.speed = AtkSpeed;
-        yield return new WaitForSeconds(0.2f* AtkSpeed);
-        BodyCollision.enabled = true;
-        yield return new WaitForSeconds(1f* AtkSpeed);
-        BodyCollision.enabled = false;
-
-        IsChase = true;
-        anim.speed = 1;
-        IsAttack = false;
-        anim.SetBool("IsAttack", false);
+        anim.SetBool("IsAttack", true);
     }
 
+    public void OnAttackEnd()
+    {
+        IsChase = true;
+        IsAttack = false;
+        anim.SetBool("IsAttack", false);
+        anim.speed = 1;
+    }
+
+    //¹Ì»ç¿ë
     void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Weapon")
@@ -118,6 +120,11 @@ public class Monster : MonoBehaviour
                 //ApplyDamage(player.Atk, player);
             }
         }
+    }
+
+    public bool Alive()
+    {
+        return !IsDead;
     }
     public void ApplyDamage(float Damage ,Player DamageCauser)
     {
@@ -150,4 +157,22 @@ public class Monster : MonoBehaviour
 
     }
 
+    public void OnAtkColliderEnable()
+    {
+        BodyCollision.enabled = true;
+    }
+
+    public void OnAtkColliderDisable()
+    {
+        BodyCollision.enabled = false;
+    }
+
+    public void OnAtkTrigger()
+    {
+
+    }
+    public void OnDeadEnd()
+    {
+        //Dead Animation End
+    }
 }

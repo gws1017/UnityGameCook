@@ -331,8 +331,8 @@ MonoBehaviour:
   Exp: 10
   IsChase: 0
   IsAttack: 0
+  IsDead: 0
   Target: {fileID: 2532115782333394698, guid: e21eafb29f3614648aa1fa5abad9e6fb, type: 3}
-  TargetPosition: {x: 0, y: 0, z: 0}
   BodyCollision: {fileID: 5159360609695518897}
 --- !u!195 &5903191797133216106
 NavMeshAgent:
@@ -743,7 +743,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: a6bb4a1e7614f0844999e5c6eb8ff1aa,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1388484299415425697}
   m_SourcePrefab: {fileID: 100100000, guid: a6bb4a1e7614f0844999e5c6eb8ff1aa, type: 3}
 --- !u!4 &1903421706808675829 stripped
 Transform:
@@ -751,3 +755,23 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1903421706809071477}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1903421706809037269 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100000, guid: a6bb4a1e7614f0844999e5c6eb8ff1aa,
+    type: 3}
+  m_PrefabInstance: {fileID: 1903421706809071477}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1388484299415425697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1903421706809037269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c622d4b165f08174b935bf115999a30d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WeaponCollision: {fileID: 5159360609695518897}
+  Rigid: {fileID: 0}
