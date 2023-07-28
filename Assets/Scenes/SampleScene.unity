@@ -310,11 +310,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SpawnInterval: 5
   SpawnRange: 5
-  MaxGenerateCount: 5
+  MaxMonsterCount: 5
+  FarDist: 10
+  NearDist: 5
   player: {fileID: 1908112763}
   MonsterPrefab: {fileID: 5165751982907370022, guid: 0bab8cfff40f65c4fa72964018212251,
     type: 3}
-  MonsterList: 
 --- !u!4 &573473256
 Transform:
   m_ObjectHideFlags: 0
@@ -1964,7 +1965,7 @@ PrefabInstance:
     - target: {fileID: 1838956545418429036, guid: e21eafb29f3614648aa1fa5abad9e6fb,
         type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2532115782333394698, guid: e21eafb29f3614648aa1fa5abad9e6fb,
         type: 3}
@@ -2050,6 +2051,11 @@ PrefabInstance:
         type: 3}
       propertyPath: AtkSpeed
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9022796883459172924, guid: e21eafb29f3614648aa1fa5abad9e6fb,
+        type: 3}
+      propertyPath: CurHealth
+      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     public float Exp = 0;
     [Space(10.0f)]
     public float MaxHealth = 100;
-    public float CurHealth;
+    public float CurHealth = 100;
     public int Atk = 10;
     public float AtkSpeed = 1;
     public int AtkRange = 1;
@@ -25,7 +25,7 @@ public class Player : MonoBehaviour
     public int Skill2Area = 2;
 
     
-    bool IsDead = false;
+    public bool IsDead = false;
     float AtkDelay;
     float Dist;
     Vector3 TargetVec;
@@ -46,19 +46,15 @@ public class Player : MonoBehaviour
     }
     void Start()
     {
-        Monsters = new List<GameObject>(GameObject.FindGameObjectsWithTag("Monster"));
     }
     
     // Update is called once per frame
     void Update()
     {
-       
         Detect();
-        Die();
         Move();
 
         Attack();
-       
     }
     void FixedUpdate()
     {
@@ -70,7 +66,8 @@ public class Player : MonoBehaviour
     {
         if (Monsters.Any() && Target == null)
         {
-            Dist = (Monsters.Last().transform.position - transform.position).sqrMagnitude;
+            Target = Monsters.Last();
+            Dist = (Target.transform.position - transform.position).sqrMagnitude;
             for(int i = Monsters.Count - 1; i >= 0; i--) 
             {
                 if (Monsters[i] == null) continue;
@@ -85,7 +82,6 @@ public class Player : MonoBehaviour
         if (Target)
             Dist = (Target.transform.position - transform.position).sqrMagnitude;
 
-        IsDead = CurHealth <= 0;
     }
     public void IncreaseExp(int exp)
     {
@@ -97,15 +93,23 @@ public class Player : MonoBehaviour
             CurHealth = MaxHealth;
         }
     }
+    public bool Alive()
+    {
+        return !IsDead;
+    }
     void Die()
     {
-        if (!IsDead) return;
-            Anim.speed = 1.0f;
+        if (IsDead == true) return;
+        Anim.speed = 1.0f;
         Anim.SetTrigger("Die");
         IsDead = true;
-        CurHealth = MaxHealth;
     }
 
+    public void OnDeadEnd()
+    {
+        IsDead = false;
+        CurHealth = MaxHealth;
+    }
     void TurnToTarget()
     {
         TargetVec = (Target.transform.position - transform.position);
@@ -141,12 +145,13 @@ public class Player : MonoBehaviour
     {
         bool ret = true;
 
-        ret &= Target;
-        ret &= (AtkRange >= Dist);
-
         AtkDelay += Time.deltaTime;
-        ret &= (1.0f / AtkSpeed) < AtkDelay;
 
+        if (Target == null) return false;
+        if (AtkRange < Dist) return false;
+        if (Alive() == false) return false;
+        if((1.0f / AtkSpeed) >= AtkDelay) return false;
+        
         return ret;
 
     }
@@ -180,11 +185,16 @@ public class Player : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
+       if(Alive() == false) return;
        if (other.tag == "MonsterBody" )
         {
             Monster monster = other.GetComponentInParent<Monster>();
             CurHealth -= monster.Atk;
-            if (CurHealth < 0) CurHealth = 0;
+            if (CurHealth < 0)
+            {
+                CurHealth = 0;
+                Die();
+            }
         }
     }
  

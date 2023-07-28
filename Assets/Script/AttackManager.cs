@@ -26,7 +26,12 @@ public class AttackManager : MonoBehaviour
 
     public void OnAtk1TriggerEnable()
     {
-        WeaponCollision.enabled = true;
+        WeaponCollision.enabled = false;
+        if(Owner.SkillType == 0)
+        {
+            Monster mon = Owner.Target.GetComponent<Monster>();
+            mon.ApplyDamage(Owner.Atk);
+        }
     }
 
     public void OnAtk1TriggerDisable()
@@ -56,5 +61,8 @@ public class AttackManager : MonoBehaviour
     {
         Owner.ChangeSkillType();
     }
-    
+    public void OnDeadEnd()
+    {
+        Owner.OnDeadEnd();
+    }
 }

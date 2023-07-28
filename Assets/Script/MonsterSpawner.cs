@@ -48,7 +48,5 @@ public class MonsterSpawner : MonoBehaviour
         if (CurMonsterCount < MaxMonsterCount) CreateMonster();
         CurMonsterCount = player.Monsters.Count;
         StartCoroutine(SpawnMonster());
-
-
     }
 }

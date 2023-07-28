@@ -18,7 +18,6 @@ public class Monster : MonoBehaviour
     public bool IsChase;
     public bool IsAttack;
     public Transform Target;
-    public Vector3 TargetPosition;
     public BoxCollider BodyCollision;
 
     Rigidbody Rigid;
@@ -35,11 +34,11 @@ public class Monster : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
         CurHealth = MaxHealth;
 
-        Invoke("ChaseStart",2);
+        Invoke("ChaseStart",1);
     }
     void Start()
     {
-        
+        Target = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     void ChaseStart()
@@ -49,14 +48,14 @@ public class Monster : MonoBehaviour
     }
     void Update()
     {
-        if(nav.enabled)
+        Detect();
+        if (nav.enabled)
         {
             TurnToTarget();
             nav.SetDestination(Target.transform.position);
             nav.isStopped = !IsChase;
         }
-        Targeting();
-
+        
     }
 
     void FixedUpdate()
@@ -74,22 +73,20 @@ public class Monster : MonoBehaviour
         TargetVec.Normalize();
         transform.rotation = Quaternion.LookRotation(TargetVec);
     }
-    void Targeting()
+    void Detect()
     {
-        float targetRadius = 1.5f;
-
         RaycastHit[] rayHits =
             Physics.SphereCastAll(transform.position,
-            targetRadius,
-            transform.forward, AtkRange, LayerMask.GetMask("Player"));
+            AtkRange,
+            transform.forward, 0, LayerMask.GetMask("Player"));
 
-        if(rayHits.Length > 0 && !IsAttack) 
+        if (rayHits.Length > 0 && !IsAttack)
         {
-            Target = rayHits[0].transform;
-            TargetPosition = Target.position;
             StartCoroutine(Attack());
         }
+
     }
+
     IEnumerator Attack()
     {
         TurnToTarget();
@@ -125,7 +122,12 @@ public class Monster : MonoBehaviour
             }
         }
     }
+    public void ApplyDamage(float Damage)
+    {
+        CurHealth -= Damage;
+        if(CurHealth < 0) CurHealth=0;
 
+    }
     IEnumerator OnDamage(Vector3 ReactVec,Player player)
     {
         yield return new WaitForSeconds(0.1f);
