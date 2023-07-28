@@ -119,7 +119,7 @@ public class Monster : MonoBehaviour
             if ((player.SkillType == 0))
             {
                 CurHealth -= player.Atk;
-                Debug.Log("Monster " + CurHealth);
+                if(CurHealth < 0) CurHealth = 0;
                 Vector3 ReactVec = transform.position - other.transform.position;
                 StartCoroutine(OnDamage(ReactVec,player));
             }

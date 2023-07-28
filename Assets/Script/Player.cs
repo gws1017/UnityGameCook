@@ -70,21 +70,15 @@ public class Player : MonoBehaviour
     {
         if (Monsters.Any() && Target == null)
         {
-            foreach (GameObject mon in Monsters)
+            Dist = (Monsters.Last().transform.position - transform.position).sqrMagnitude;
+            for(int i = Monsters.Count - 1; i >= 0; i--) 
             {
-                if (mon == null) continue;
-                Dist = (mon.transform.position - transform.position).sqrMagnitude;
-                Target = mon;
-                break;
-            }
-            foreach (GameObject mon in Monsters)
-            {
-                if (mon == null) continue;
-                float d = (mon.transform.position - transform.position).sqrMagnitude;
+                if (Monsters[i] == null) continue;
+                float d = (Monsters[i].transform.position - transform.position).sqrMagnitude;
                 if (Dist > d)
                 {
                     Dist = d;
-                    Target = mon;
+                    Target = Monsters[i];
                 }
             }
         }
