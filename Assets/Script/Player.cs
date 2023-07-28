@@ -23,7 +23,6 @@ public class Player : MonoBehaviour
     public int SkillType = 0;
     public int MaxSkillType = 3;
     public int Skill2Area = 2;
-
     
     public bool IsDead = false;
     float AtkDelay;
@@ -32,7 +31,6 @@ public class Player : MonoBehaviour
 
     Rigidbody Rigid;
     Animator Anim;
-    MeshRenderer[] meshs;
 
     public List<GameObject> Monsters;
     public GameObject Target;
@@ -42,13 +40,8 @@ public class Player : MonoBehaviour
         CurHealth = MaxHealth;
         Anim = GetComponentInChildren<Animator>();
         Rigid = GetComponent<Rigidbody>();
-        meshs = GetComponentsInChildren<MeshRenderer>();
-    }
-    void Start()
-    {
     }
     
-    // Update is called once per frame
     void Update()
     {
         Detect();
@@ -83,32 +76,13 @@ public class Player : MonoBehaviour
             Dist = (Target.transform.position - transform.position).sqrMagnitude;
 
     }
-    public void IncreaseExp(int exp)
-    {
-        Exp += exp;
-        if(Exp>=MaxExp)
-        {
-            Exp = Exp - MaxExp;
-            Level++;
-            CurHealth = MaxHealth;
-        }
-    }
-    public bool Alive()
-    {
-        return !IsDead;
-    }
+   
     void Die()
     {
         if (IsDead == true) return;
         Anim.speed = 1.0f;
         Anim.SetTrigger("Die");
         IsDead = true;
-    }
-
-    public void OnDeadEnd()
-    {
-        IsDead = false;
-        CurHealth = MaxHealth;
     }
     void TurnToTarget()
     {
@@ -165,6 +139,25 @@ public class Player : MonoBehaviour
         TurnToTarget();
         Anim.SetTrigger("DoAttack");
         AtkDelay = 0;
+    }
+    public void IncreaseExp(int exp)
+    {
+        Exp += exp;
+        if (Exp >= MaxExp)
+        {
+            Exp = Exp - MaxExp;
+            Level++;
+            CurHealth = MaxHealth;
+        }
+    }
+    public bool Alive()
+    {
+        return !IsDead;
+    }
+    public void OnDeadEnd()
+    {
+        IsDead = false;
+        CurHealth = MaxHealth;
     }
 
     public void RemoveTarget()

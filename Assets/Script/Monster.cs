@@ -17,6 +17,7 @@ public class Monster : MonoBehaviour
     [Space(10.0f)]
     public bool IsChase;
     public bool IsAttack;
+    public bool IsDead;
     public Transform Target;
     public BoxCollider BodyCollision;
 
@@ -111,53 +112,42 @@ public class Monster : MonoBehaviour
         {
             Player player = other.GetComponentInParent<Player>();
             if (player == null) return;
-            Debug.Log("Monster be attacked ");
 
             if ((player.SkillType == 0))
             {
-                CurHealth -= player.Atk;
-                if(CurHealth < 0) CurHealth = 0;
-                Vector3 ReactVec = transform.position - other.transform.position;
-                StartCoroutine(OnDamage(ReactVec,player));
+                //ApplyDamage(player.Atk, player);
             }
         }
     }
-    public void ApplyDamage(float Damage)
+    public void ApplyDamage(float Damage ,Player DamageCauser)
     {
         CurHealth -= Damage;
-        if(CurHealth < 0) CurHealth=0;
+        if(CurHealth < 0) CurHealth = 0;
 
-    }
-    IEnumerator OnDamage(Vector3 ReactVec,Player player)
-    {
-        yield return new WaitForSeconds(0.1f);
-
-        if(CurHealth <= 0 )
+        if (CurHealth <= 0 && !IsDead)
         {
-            if (IsChase) player.IncreaseExp(Exp);
-            player.RemoveTarget();
-            player.IncreaseExp(Exp);
-            gameObject.layer = 9;
-            StopAllCoroutines();
-
+            IsDead = true;
             IsChase = false;
             nav.enabled = false;
             BodyCollision.enabled = false;
-            anim.SetTrigger("Die");
 
+            DamageCauser.IncreaseExp(Exp);
+            DamageCauser.RemoveTarget();
+            DamageCauser.IncreaseExp(Exp);
+
+            gameObject.layer = 9;
+            StopAllCoroutines();
+
+            Vector3 ReactVec = transform.position - DamageCauser.transform.position;
             ReactVec = ReactVec.normalized;
             ReactVec += Vector3.up;
             Rigid.AddForce(ReactVec * 5, ForceMode.Impulse);
-            
+
+            anim.SetTrigger("Die");
+
             Destroy(gameObject, 3.0f);
         }
-    }
-
-    public void HitFromAtk2(Player DamageCauser)
-    {
-        CurHealth -= DamageCauser.Atk;
-        Vector3 ReactVec = transform.position - DamageCauser.transform.position;
-        StartCoroutine(OnDamage(ReactVec, DamageCauser));
 
     }
+
 }

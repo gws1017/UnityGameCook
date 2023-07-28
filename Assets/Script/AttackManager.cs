@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class AttackManager : MonoBehaviour
 {
-    // Start is called before the first frame update
     public BoxCollider WeaponCollision;
     public Rigidbody Rigid;
     Player Owner;
@@ -13,12 +12,7 @@ public class AttackManager : MonoBehaviour
     {
         Owner = GetComponentInParent<Player>();  
     }
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
     void Update()
     {
         
@@ -26,41 +20,51 @@ public class AttackManager : MonoBehaviour
 
     public void OnAtk1TriggerEnable()
     {
-        WeaponCollision.enabled = false;
-        if(Owner.SkillType == 0)
-        {
-            Monster mon = Owner.Target.GetComponent<Monster>();
-            mon.ApplyDamage(Owner.Atk);
-        }
+        WeaponCollision.enabled = true;
     }
 
     public void OnAtk1TriggerDisable()
     {
         WeaponCollision.enabled = false;
+    }
+
+    public void OnAtk1Trigger()
+    {
+        if (Owner.SkillType == 0)
+        {
+            Monster mon = Owner.Target.GetComponent<Monster>();
+            mon.ApplyDamage(Owner.Atk, Owner);
+        }
+        Owner.ChangeSkillType();
 
     }
 
-    public void OnAreaAttack()
+    public void OnAtk2Trigger()
     {
         RaycastHit[] RayHits = Physics.SphereCastAll(Owner.Target.transform.position,
             Owner.Skill2Area, Vector3.up, 0f, LayerMask.GetMask("Monster"));
 
         foreach(RaycastHit hitobj in RayHits) 
         {
-            hitobj.transform.GetComponent<Monster>().HitFromAtk2(Owner);
+            hitobj.transform.GetComponent<Monster>().ApplyDamage(Owner.Atk, Owner);
         }
+        Owner.ChangeSkillType();
+
     }
 
-    public void OnHealSkill()
+    public void OnAtk3Trigger()
     {
         Owner.CurHealth += Owner.Atk;
         if(Owner.CurHealth >= Owner.MaxHealth) { Owner.CurHealth = Owner.MaxHealth; }
+        Owner.ChangeSkillType();
+
     }
 
     public void OnAttackEnd()
     {
-        Owner.ChangeSkillType();
+        //Owner.ChangeSkillType();
     }
+
     public void OnDeadEnd()
     {
         Owner.OnDeadEnd();
